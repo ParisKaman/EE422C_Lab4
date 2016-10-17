@@ -49,11 +49,44 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 	
-	protected final void walk(int direction) {
+	private void move(int direction, int spaces) {
+			switch (direction){
+				case 0:	this.x_coord += spaces;
+						break;
+				case 1: this.x_coord += spaces;
+						this.y_coord -= spaces;
+						break;
+				case 2: this.y_coord -= spaces;
+						break;
+				case 3: this.x_coord -= spaces;
+						this.y_coord -= spaces;
+						break;
+				case 4: this.x_coord -= spaces;
+						break;
+				case 5: this.x_coord -= spaces;
+						this.y_coord += spaces;
+						break;
+				case 6: this.y_coord += spaces;
+						break;
+				case 7: this.x_coord += spaces;
+						this.y_coord += spaces;
+						break;
+			}
+		this.x_coord %= Params.world_width;
+		this.y_coord %= Params.world_height;
 	}
 	
-	protected final void run(int direction) {
-		
+	protected final void walk(int direction) {
+		if(this.energy >= Params.walk_energy_cost){
+			move(direction, 1);
+		}
+
+	}
+	
+	protected final void run(int direction){
+		if(this.energy >= Params.run_energy_cost){
+			move(direction, 2);
+		}
 	}
 	
 	protected final void reproduce(Critter offspring, int direction) {
@@ -73,6 +106,7 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
+				
 	}
 	
 	/**
