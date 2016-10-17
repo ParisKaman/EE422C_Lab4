@@ -206,5 +206,25 @@ public abstract class Critter {
 	public static void worldTimeStep() {
 	}
 	
-	public static void displayWorld() {}
+	public static void displayWorld() {
+		System.out.print("+");
+		for(int i = 0; i<Params.world_width; i++){
+			System.out.print("-");
+		}
+		System.out.println("+");
+		for(int i = 0; i<Params.world_height; i++){
+			System.out.print("|");
+			for(int j = 0; j < Params.world_width; j++){
+				//if Critter here, print it //not sure if using ArrayList or not
+				//else print a space
+				System.out.print(" ");
+			}
+			System.out.println("|");
+		}
+		System.out.print("+");
+		for(int i = 0; i<Params.world_width; i++){
+			System.out.print("-");
+		}
+		System.out.println("+");
+	}
 }
