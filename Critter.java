@@ -24,6 +24,7 @@ public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
+	static List<Critter> CritterCollection = new java.util.ArrayList<Critter>();
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -72,8 +73,8 @@ public abstract class Critter {
 						this.y_coord += spaces;
 						break;
 			}
-		this.x_coord %= Params.world_width;
-		this.y_coord %= Params.world_height;
+		this.x_coord = (this.x_coord + Params.world_width) % Params.world_width;
+		this.y_coord = (this.y_coord + Params.world_height) % Params.world_height;
 	}
 	
 	protected final void walk(int direction) {
@@ -106,7 +107,14 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
-				
+		try{
+			Class<?> c = Class.forName(critter_class_name);
+			Critter crit = (Critter)c.newInstance();
+			CritterCollection.add(crit);
+		}
+		catch(ClassNotFoundException | InstantiationException | IllegalAccessException ex){
+			throw new InvalidCritterException(critter_class_name);
+		}			
 	}
 	
 	/**
@@ -117,10 +125,20 @@ public abstract class Critter {
 	 */
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
-	
+		try{
+			Class<?> c = Class.forName(critter_class_name);
+			for(int i = 0; i < CritterCollection.size(); i++){
+				Critter a = CritterCollection.get(i);
+				if(CritterCollection.get(i).getClass() == c){
+					result.add(CritterCollection.get(i));
+				}
+			}
+		}
+		catch(ClassNotFoundException ex){
+			throw new InvalidCritterException(critter_class_name);
+		}
 		return result;
 	}
-	
 	/**
 	 * Prints out how many Critters of each type there are on the board.
 	 * @param critters List of Critters.
