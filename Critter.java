@@ -24,7 +24,7 @@ public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
-
+	private static String[][] world = new String[Params.world_height][Params.world_width];
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
 		myPackage = Critter.class.getPackage().toString().split(" ")[1];
@@ -207,22 +207,37 @@ public abstract class Critter {
 	}
 	
 	public static void displayWorld() {
+		//Clear the world
+		for(int i = 0; i<Params.world_height;i++){
+			for(int j = 0; j<Params.world_width; j++){
+				world[i][j] = " ";					
+			}
+		}
+		
+		//populate the world
+		for (Critter critter: population){
+			world[critter.x_coord][critter.y_coord] = critter.toString();
+		}
+		
+		//Print top border
 		System.out.print("+");
-		for(int i = 0; i<Params.world_width; i++){
+		for(int i = 0; i<Params.world_width; i++){	
 			System.out.print("-");
 		}
 		System.out.println("+");
-		for(int i = 0; i<Params.world_height; i++){
+		
+		//Print world
+		for(int i = 0; i<Params.world_height; i++){	
 			System.out.print("|");
 			for(int j = 0; j < Params.world_width; j++){
-				//if Critter here, print it //not sure if using ArrayList or not
-				//else print a space
-				System.out.print(" ");
-			}
+				System.out.print(world[i][j]);
+				}
 			System.out.println("|");
 		}
-		System.out.print("+");
-		for(int i = 0; i<Params.world_width; i++){
+		
+		//Print bottom border
+		System.out.print("+");					
+		for(int i = 0; i<Params.world_width; i++){	
 			System.out.print("-");
 		}
 		System.out.println("+");
