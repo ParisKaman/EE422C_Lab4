@@ -20,6 +20,10 @@ import java.util.List;
  */
 
 
+//Thing's I've added(Aaron)
+//String[][] world
+//Finished displayWorld
+
 public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
@@ -201,6 +205,7 @@ public abstract class Critter {
 	 * Clear the world of all critters, dead and alive
 	 */
 	public static void clearWorld() {
+
 	}
 	
 	public static void worldTimeStep() {

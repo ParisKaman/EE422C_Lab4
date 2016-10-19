@@ -20,6 +20,13 @@ import java.io.*;
  * input file is optional.  If input file is specified, the word 'test' is optional.
  * May not use 'test' argument without specifying input file.
  */
+
+/*
+ * Stuff I've added
+ * boolean status
+ * main loop code
+ */
+
 public class Main {
 
     static Scanner kb;	// scanner connected to keyboard input, or input file
@@ -28,7 +35,7 @@ public class Main {
     private static String myPackage;	// package of Critter file.  Critter cannot be in default pkg.
     private static boolean DEBUG = false; // Use it or not, as you wish!
     static PrintStream old = System.out;	// if you want to restore output to console
-
+    private static boolean status = true;	//Set to false if user quits
 
     // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
     static {
@@ -69,7 +76,20 @@ public class Main {
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
         
-        System.out.println("GLHF");
+        while(status){
+        	System.out.print("critters> ");
+        	String input = kb.nextLine();
+        	String[] command = Controller.parse(input);
+        	boolean check = Controller.isLegal(command);
+        	if(!check){
+        		command[0] = "false";
+        	}
+        	status = Controller.execute(command, status, input);
+        }
+        
+       
+        //Critter.displayWorld();
+              
         
         /* Write your code above */
         System.out.flush();
