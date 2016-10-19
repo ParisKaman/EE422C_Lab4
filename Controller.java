@@ -41,10 +41,11 @@ public class Controller {
 		return false;
 	}		
 
-	public static boolean execute(String[] command, boolean status, String input){
+	public static boolean execute(String[] command, String input){
+
 		//If invalid command output error and start again		
 		if(command[0].equals("false")){
-			System.out.println("error processing: " + input);
+			System.out.println("invalid command: " + input);
 			return true;
 		}
 		
@@ -62,8 +63,19 @@ public class Controller {
 		
 		//If step command
 		if(command[0].equals("step")){
-			//do world timestep n times where
-			//n is the number stored in String[1]
+			int value = 0;
+			if(command[1] == null)
+				value = 1;
+			else try{
+				Integer temp = Integer.valueOf(command[1]);
+				value = temp.intValue();				
+			} catch(Exception NumberFormatException){
+				System.out.println("error processing: " + input);
+				return true;
+			}
+			for(int i = 0; i < value; i++){
+				Critter.worldTimeStep();
+			}
 			return true;
 		}
 		
@@ -75,37 +87,57 @@ public class Controller {
 				Critter.setSeed(value);
 			} catch(Exception NumberFormatException){
 				System.out.println("error processing: " + input);
+				return true;
 			}
 			return true;
 		}
 
 		//If stats command
 		if(command[0].equals("stats")){
-			//critter.getinstances
-			//<crittername>.runstats
+			java.util.List<Critter> instances;
+			try{
+				instances = Critter.getInstances("assignment4." + command[1]);
+				
+				//Critter.runStats(instances);
+				//need to invoke this method with the critter in command[1]
+				//rather than "Critter" but don't know how yet
+				
+			} catch(Exception InvalidCritterException){
+				System.out.println("error processing: " + input);
+				return true;
+			}
 			return true;
 		}
 			
 		//if make command
 		if(command[0].equals("make")){
-			int value;
+			int value = 0;
 			
-			//Figure out number of times to call make critter
+			//call make critter n times
+			//if no arg specified, call it once
 			if(command[2] == null){
 				value = 1;
 			}
-			else{
+			
+			//else figure out how many times to call
+			//catch exception if arg is junk
+			else try{
 				Integer temp = Integer.valueOf(command[2]);
 				value = temp.intValue();
+				
+			} catch(Exception NumberFormatException){
+				System.out.println("error processing: " + input);
+				return true;
 			}
 			
 			//call make critter 'value' times. Catch the exception if we need to
 			try{
 				for(int i = 0; i < value; i++){
-					Critter.makeCritter(command[1]);
+					Critter.makeCritter("assignment4." + command[1]);
 				}
 			} catch(Exception InvalidCritterException){
 				System.out.println("error processing: " + input);
+				return true;
 			}
 		}
 		

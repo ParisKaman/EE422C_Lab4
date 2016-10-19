@@ -23,12 +23,15 @@ import java.util.List;
 //Thing's I've added(Aaron)
 //String[][] world
 //Finished displayWorld
+//Changed CritterCollection to private
+//Edited getPopulation
 
 public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 	private static String[][] world = new String[Params.world_height][Params.world_width];
+	private static List<Critter> CritterCollection = new java.util.ArrayList<Critter>();
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
 		myPackage = Critter.class.getPackage().toString().split(" ")[1];
@@ -45,7 +48,7 @@ public abstract class Critter {
 	
 	
 	/* a one-character long string that visually depicts your critter in the ASCII interface */
-	public String toString() { return ""; }
+public String toString() { return ""; }
 	
 	private int energy = 0;
 	protected int getEnergy() { return energy; }
@@ -76,8 +79,8 @@ public abstract class Critter {
 						this.y_coord += spaces;
 						break;
 			}
-		this.x_coord %= Params.world_width;
-		this.y_coord %= Params.world_height;
+		this.x_coord = (this.x_coord + Params.world_width) % Params.world_width;
+		this.y_coord = (this.y_coord + Params.world_height) % Params.world_height;
 	}
 	
 	protected final void walk(int direction) {
@@ -110,7 +113,14 @@ public abstract class Critter {
 	 * @throws InvalidCritterException
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
-				
+		try{
+			Class<?> c = Class.forName(critter_class_name);
+			Critter crit = (Critter)c.newInstance();
+			CritterCollection.add(crit);
+		}
+		catch(ClassNotFoundException | InstantiationException | IllegalAccessException ex){
+			throw new InvalidCritterException(critter_class_name);
+		}			
 	}
 	
 	/**
@@ -121,10 +131,20 @@ public abstract class Critter {
 	 */
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
-	
+		try{
+			Class<?> c = Class.forName(critter_class_name);
+			for(int i = 0; i < CritterCollection.size(); i++){
+				Critter a = CritterCollection.get(i);
+				if(CritterCollection.get(i).getClass() == c){
+					result.add(CritterCollection.get(i));
+				}
+			}
+		}
+		catch(ClassNotFoundException ex){
+			throw new InvalidCritterException(critter_class_name);
+		}
 		return result;
 	}
-	
 	/**
 	 * Prints out how many Critters of each type there are on the board.
 	 * @param critters List of Critters.
@@ -187,7 +207,7 @@ public abstract class Critter {
 		 * implemented for grading tests to work.
 		 */
 		protected static List<Critter> getPopulation() {
-			return population;
+			return CritterCollection;
 		}
 		
 		/*
@@ -205,7 +225,6 @@ public abstract class Critter {
 	 * Clear the world of all critters, dead and alive
 	 */
 	public static void clearWorld() {
-
 	}
 	
 	public static void worldTimeStep() {
@@ -220,7 +239,7 @@ public abstract class Critter {
 		}
 		
 		//populate the world
-		for (Critter critter: population){
+		for (Critter critter: CritterCollection){
 			world[critter.x_coord][critter.y_coord] = critter.toString();
 		}
 		
