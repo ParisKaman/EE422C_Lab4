@@ -20,16 +20,14 @@ import java.util.List;
  */
 
 
-//Thing's I've added(Aaron)
-//String[][] world
-//Finished displayWorld
-//Added "myPackage." to certain lines
 
 public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 	private static String[][] world = new String[Params.world_width][Params.world_height];
+	private static boolean fight = false; //How to know if critters are moving or fleeing
+	
 	
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -47,65 +45,104 @@ public abstract class Critter {
 	
 	
 	/* a one-character long string that visually depicts your critter in the ASCII interface */
-public String toString() { return ""; }
+	public String toString() { return ""; }
 	
 	private int energy = 0;
 	protected int getEnergy() { return energy; }
-	
+	public boolean hasMoved; 
 	private int x_coord;
 	private int y_coord;
+	private int fightRoll;
+	private boolean wantsFight;
+	public boolean isBaby = false;
+	public boolean isDead = false;
 	
 	protected void move(int direction, int spaces) {
+		
+		//check to see if the Critter has already moved
+		if(this.hasMoved){
+			return;
+		}
+		
+		//Temp x,y coordinates
+		int x = this.x_coord;
+		int y = this.y_coord;
+				
 			switch (direction){
-				case 0:	this.x_coord += spaces;
+				case 0:	x += spaces;
 						break;
-				case 1: this.x_coord += spaces;
-						this.y_coord -= spaces;
+				case 1: x += spaces;
+						y -= spaces;
 						break;
-				case 2: this.y_coord -= spaces;
+				case 2: y -= spaces;
 						break;
-				case 3: this.x_coord -= spaces;
-						this.y_coord -= spaces;
+				case 3: x -= spaces;
+						y -= spaces;
 						break;
-				case 4: this.x_coord -= spaces;
+				case 4: x -= spaces;
 						break;
-				case 5: this.x_coord -= spaces;
-						this.y_coord += spaces;
+				case 5: x -= spaces;
+						y += spaces;
 						break;
-				case 6: this.y_coord += spaces;
+				case 6: y += spaces;
 						break;
-				case 7: this.x_coord += spaces;
-						this.y_coord += spaces;
+				case 7: x += spaces;
+						y += spaces;
 						break;
 			}
-		this.x_coord = (this.x_coord + Params.world_width) % Params.world_width;
-		this.y_coord = (this.y_coord + Params.world_height) % Params.world_height;
+		
+		//wrap the world
+		x = (x + Params.world_width) % Params.world_width;
+		y = (y + Params.world_height) % Params.world_height;
+		
+		//check that it is able to move if fighting
+		if(fight && !isBaby){
+			for(Critter crit: population){
+				if(!crit.equals(this))
+					if((crit.x_coord == x) && (crit.y_coord == y))
+						return;
+			}
+		}
+		
+		//update coordinates if move was successful
+		this.x_coord = x;
+		this.y_coord = y;
+		this.hasMoved = true;
 	}
 	
 	protected final void walk(int direction) {
-		if(this.energy >= Params.walk_energy_cost){
-			move(direction, 1);
-		}
-
+		//move the critter
+		//it may kill itself by trying
+		move(direction, 1);
+		this.energy -= Params.walk_energy_cost;
 	}
 	
 	protected final void run(int direction){
-		if(this.energy >= Params.run_energy_cost){
-			move(direction, 2);
-		}
+		//move the critter
+		//it may kill itself by trying
+		move(direction, 2);
+		this.energy -= Params.run_energy_cost;
+		
 	}
 	
 	protected final void reproduce(Critter offspring, int direction) {
+		
+		//check if it is able to reproduce
 		if(this.energy < Params.min_reproduce_energy){
 			return;
 		}
+		
+		//if so reproduce. catch exceptions thrown
 		Class<? extends Critter> a = this.getClass();
 		try {
 			Critter child = (Critter) a.newInstance();
 			child.energy = this.energy/2;
+			this.energy = (this.energy + 1) / 2;
 			child.x_coord = this.x_coord;
 			child.y_coord = this.y_coord;
+			child.hasMoved = false;
 			child.move(direction, 1);
+			child.isBaby = true;
 			babies.add(child);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
@@ -246,11 +283,101 @@ public String toString() { return ""; }
 		babies.clear();
 	}
 	
+	private static void clearDead(){
+		int i = 0;
+		while(i<population.size()){
+			if(population.get(i).isDead)
+				population.remove(i);
+			else i++;
+		}
+	}
 	
 	public static void worldTimeStep() {
+		
+		//All critters do timestep
 		for(Critter crit: population){
 			crit.doTimeStep();
+			if(crit.energy <= 0)
+				crit.isDead = true;
 		}
+				
+		//check encounters
+		fight = true;
+		for(Critter crit: population){
+			for(int i = population.indexOf(crit) + 1; i < population.size(); i++){
+				Critter other = population.get(i);
+				
+				//if two critters are in the same spot, both are not dead, run an encounter
+				if(other != null && other.x_coord == crit.x_coord 
+						&& other.y_coord == crit.y_coord && !other.isDead){
+					
+					//see if crit wants to fight. (May try to run)
+					crit.wantsFight = crit.fight(other.toString());
+					if(crit.energy <= 0)		//check that crit is alive
+						crit.isDead = true;
+					
+					//see if other wants to fight. (May try to run)
+					other.wantsFight = other.fight(crit.toString());
+					if(other.energy <=0)		//check that other is alive
+						other.isDead = true;
+					
+					//check that crits are still in same position
+					//if not, don't fight
+					if(!(other.x_coord == crit.x_coord 
+							&& other.y_coord == crit.y_coord))
+						return;
+					
+					//get rolls for each critter
+					if(crit.wantsFight){
+						crit.fightRoll = getRandomInt(crit.energy);
+					}else{
+						crit.fightRoll = 0;
+					}
+					if(other.wantsFight){
+						other.fightRoll = getRandomInt(other.energy);
+					}else{
+						other.fightRoll = 0;
+					}
+					
+					//if crit rolls higher or equal to other, he kills other and gets half his energy
+					// other only wins if he rolls higher than crit
+					if(crit.fightRoll >= other.fightRoll){
+						crit.energy += (other.energy/2);
+						other.energy = 0;
+					}else{
+						other.energy += (crit.energy/2);
+						crit.energy = 0;
+					}
+					
+					//check if either is dead
+					if(crit.energy <= 0)
+						crit.isDead = true;
+					if(other.energy <= 0)
+						other.isDead = true;
+				}
+			}
+		}
+		
+		//fights are over
+		fight = false;
+		
+		//add babies and empty baby array
+		for(Critter crit: babies){
+			crit.isBaby = false;
+			population.add(crit);
+		}
+		babies.clear();
+		
+		//get rid of rest energy cost
+		for(Critter crit: population){
+			crit.energy -= Params.rest_energy_cost;
+			if(crit.energy <= 0){        						//throws concurrentmodificationexception
+				crit.isDead = true;
+			}
+		}
+		
+		//clear all the dead
+		clearDead();
 	}
 	
 	public static void displayWorld() {
