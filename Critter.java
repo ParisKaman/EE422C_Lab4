@@ -241,7 +241,18 @@ public abstract class Critter {
 	}
 	
 	public static void worldTimeStep() {
-		
+		for(Critter crit: population){
+			crit.doTimeStep();
+		}
+		for(Critter crit: babies){
+			population.add(crit);
+		}
+		for(Critter crit: population){
+			crit.energy -= Params.rest_energy_cost;
+			if(crit.energy <= 0){
+				population.remove(crit);
+			}
+		}
 		
 	}
 	
