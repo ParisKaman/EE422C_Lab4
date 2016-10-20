@@ -24,6 +24,8 @@ public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
+	
+	
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -45,7 +47,7 @@ public abstract class Critter {
 	
 	private int energy = 0;
 	protected int getEnergy() { return energy; }
-	
+	public boolean hasMoved; 
 	private int x_coord;
 	private int y_coord;
 	
@@ -74,6 +76,7 @@ public abstract class Critter {
 			}
 		this.x_coord = (this.x_coord + Params.world_width) % Params.world_width;
 		this.y_coord = (this.y_coord + Params.world_height) % Params.world_height;
+		this.hasMoved = true;
 	}
 	
 	protected final void walk(int direction) {
@@ -97,8 +100,10 @@ public abstract class Critter {
 		try {
 			Critter child = (Critter) a.newInstance();
 			child.energy = this.energy/2;
+			this.energy = (this.energy + 1) / 2;
 			child.x_coord = this.x_coord;
 			child.y_coord = this.y_coord;
+			child.hasMoved = false;
 			child.move(direction, 1);
 			babies.add(child);
 		} catch (InstantiationException e) {
@@ -243,6 +248,15 @@ public abstract class Critter {
 	public static void worldTimeStep() {
 		for(Critter crit: population){
 			crit.doTimeStep();
+		}
+		for(Critter crit: population){
+			for(int i = population.indexOf(crit) + 1; i < population.size(); i++){
+				Critter other = population.get(i);
+				if(other != null && other.get(i).x_coord == crit.x_coord 
+						&& other.y_coord == crit.y_coord){
+					//check for fights
+				}
+			}
 		}
 		for(Critter crit: babies){
 			population.add(crit);
