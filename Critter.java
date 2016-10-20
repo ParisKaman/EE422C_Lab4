@@ -25,6 +25,7 @@ import java.util.List;
 //Finished displayWorld
 //Changed CritterCollection to private
 //Edited getPopulation
+//Added "myPackage." to certain lines
 
 public abstract class Critter {
 	private static String myPackage;
@@ -32,6 +33,7 @@ public abstract class Critter {
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 	private static String[][] world = new String[Params.world_height][Params.world_width];
 	private static List<Critter> CritterCollection = new java.util.ArrayList<Critter>();
+	
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
 		myPackage = Critter.class.getPackage().toString().split(" ")[1];
@@ -114,7 +116,7 @@ public String toString() { return ""; }
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
 		try{
-			Class<?> c = Class.forName(critter_class_name);
+			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
 			Critter crit = (Critter)c.newInstance();
 			CritterCollection.add(crit);
 		}
@@ -132,7 +134,7 @@ public String toString() { return ""; }
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
 		try{
-			Class<?> c = Class.forName(critter_class_name);
+			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
 			for(int i = 0; i < CritterCollection.size(); i++){
 				Critter a = CritterCollection.get(i);
 				if(CritterCollection.get(i).getClass() == c){

@@ -76,6 +76,20 @@ public class Main {
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
         
+        
+        //FOR STAGE 1 AND 2 ONLY
+    	//DELETE LATER
+    	String hello = "hello";
+    	String[] populate = {"make", "Craig", "25", null};
+    	Controller.execute(populate, hello);
+    	populate[1] = "Algae";
+    	populate[2] = "100";
+    	Controller.execute(populate, hello);     	
+    	//FOR STAGE 1 AND 2 ONLY
+    	//DELETE LATER
+    	
+    	
+        
         while(status){
         	System.out.print("critters> ");
         	String input = kb.nextLine();
@@ -84,7 +98,7 @@ public class Main {
         	if(!check){
         		command[0] = "false";
         	}
-        	status = Controller.execute(command, status, input);
+        	status = Controller.execute(command, input);
         }
         
        
