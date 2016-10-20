@@ -50,8 +50,13 @@ public abstract class Critter {
 	public boolean hasMoved; 
 	private int x_coord;
 	private int y_coord;
+	private int fightRoll;
+	private boolean wantsFight;
 	
 	protected void move(int direction, int spaces) {
+		if(this.hasMoved){
+			return;
+		}
 			switch (direction){
 				case 0:	this.x_coord += spaces;
 						break;
@@ -246,15 +251,39 @@ public abstract class Critter {
 	}
 	
 	public static void worldTimeStep() {
+		
 		for(Critter crit: population){
 			crit.doTimeStep();
 		}
 		for(Critter crit: population){
 			for(int i = population.indexOf(crit) + 1; i < population.size(); i++){
 				Critter other = population.get(i);
-				if(other != null && other.get(i).x_coord == crit.x_coord 
+				if(other != null && other.x_coord == crit.x_coord 
 						&& other.y_coord == crit.y_coord){
-					//check for fights
+					crit.wantsFight = crit.fight(other.toString());
+					other.wantsFight = other.fight(crit.toString());
+					
+					//get rolls for each critter
+					if(crit.wantsFight){
+						crit.fightRoll = getRandomInt(crit.energy);
+					}else{
+						crit.fightRoll = 0;
+					}
+					if(other.wantsFight){
+						other.fightRoll = getRandomInt(other.energy);
+					}else{
+						other.fightRoll = 0;
+					}
+					
+					//if crit rolls higher or equal to other, he kills other and gets half his energy
+					// other only wins if he rolls higher than crit
+					if(crit.fightRoll >= other.fightRoll){
+						crit.energy += (other.energy/2);
+						other.energy = 0;
+					}else{
+						other.energy += (crit.energy/2);
+						crit.energy = 0;
+					}
 				}
 			}
 		}
