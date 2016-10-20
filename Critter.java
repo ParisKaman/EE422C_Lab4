@@ -24,7 +24,6 @@ public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
-	static List<Critter> CritterCollection = new java.util.ArrayList<Critter>();
 
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -50,7 +49,7 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 	
-	private void move(int direction, int spaces) {
+	protected void move(int direction, int spaces) {
 			switch (direction){
 				case 0:	this.x_coord += spaces;
 						break;
@@ -91,6 +90,22 @@ public abstract class Critter {
 	}
 	
 	protected final void reproduce(Critter offspring, int direction) {
+		if(this.energy < Params.min_reproduce_energy){
+			return;
+		}
+		Class<? extends Critter> a = this.getClass();
+		try {
+			Critter child = (Critter) a.newInstance();
+			child.energy = this.energy/2;
+			child.x_coord = this.x_coord;
+			child.y_coord = this.y_coord;
+			child.move(direction, 1);
+			babies.add(child);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public abstract void doTimeStep();
@@ -110,7 +125,7 @@ public abstract class Critter {
 		try{
 			Class<?> c = Class.forName(critter_class_name);
 			Critter crit = (Critter)c.newInstance();
-			CritterCollection.add(crit);
+			population.add(crit);
 		}
 		catch(ClassNotFoundException | InstantiationException | IllegalAccessException ex){
 			throw new InvalidCritterException(critter_class_name);
@@ -127,10 +142,10 @@ public abstract class Critter {
 		List<Critter> result = new java.util.ArrayList<Critter>();
 		try{
 			Class<?> c = Class.forName(critter_class_name);
-			for(int i = 0; i < CritterCollection.size(); i++){
-				Critter a = CritterCollection.get(i);
-				if(CritterCollection.get(i).getClass() == c){
-					result.add(CritterCollection.get(i));
+			for(int i = 0; i < population.size(); i++){
+				Critter a = population.get(i);
+				if(a.getClass().isInstance(c)){
+					result.add(population.get(i));
 				}
 			}
 		}
