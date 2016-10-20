@@ -123,8 +123,11 @@ public abstract class Critter {
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
 		try{
-			Class<?> c = Class.forName(critter_class_name);
+			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
 			Critter crit = (Critter)c.newInstance();
+			crit.x_coord = getRandomInt(Params.world_width);
+			crit.y_coord = getRandomInt(Params.world_height);
+			crit.energy = Params.start_energy;
 			population.add(crit);
 		}
 		catch(ClassNotFoundException | InstantiationException | IllegalAccessException ex){
@@ -141,10 +144,9 @@ public abstract class Critter {
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
 		try{
-			Class<?> c = Class.forName(critter_class_name);
+			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
 			for(int i = 0; i < population.size(); i++){
-				Critter a = population.get(i);
-				if(a.getClass().isInstance(c)){
+				if(population.get(i).getClass() == c){
 					result.add(population.get(i));
 				}
 			}
@@ -234,9 +236,13 @@ public abstract class Critter {
 	 * Clear the world of all critters, dead and alive
 	 */
 	public static void clearWorld() {
+		population.clear();
+		babies.clear();
 	}
 	
 	public static void worldTimeStep() {
+		
+		
 	}
 	
 	public static void displayWorld() {
