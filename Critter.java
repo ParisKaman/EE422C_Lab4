@@ -23,8 +23,6 @@ import java.util.List;
 //Thing's I've added(Aaron)
 //String[][] world
 //Finished displayWorld
-//Changed CritterCollection to private
-//Edited getPopulation
 //Added "myPackage." to certain lines
 
 public abstract class Critter {
@@ -32,7 +30,6 @@ public abstract class Critter {
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 	private static String[][] world = new String[Params.world_height][Params.world_width];
-	private static List<Critter> CritterCollection = new java.util.ArrayList<Critter>();
 	
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -50,7 +47,7 @@ public abstract class Critter {
 	
 	
 	/* a one-character long string that visually depicts your critter in the ASCII interface */
-public String toString() { return ""; }
+	public String toString() { return ""; }
 	
 	private int energy = 0;
 	protected int getEnergy() { return energy; }
@@ -58,7 +55,7 @@ public String toString() { return ""; }
 	private int x_coord;
 	private int y_coord;
 	
-	private void move(int direction, int spaces) {
+	protected void move(int direction, int spaces) {
 			switch (direction){
 				case 0:	this.x_coord += spaces;
 						break;
@@ -99,6 +96,22 @@ public String toString() { return ""; }
 	}
 	
 	protected final void reproduce(Critter offspring, int direction) {
+		if(this.energy < Params.min_reproduce_energy){
+			return;
+		}
+		Class<? extends Critter> a = this.getClass();
+		try {
+			Critter child = (Critter) a.newInstance();
+			child.energy = this.energy/2;
+			child.x_coord = this.x_coord;
+			child.y_coord = this.y_coord;
+			child.move(direction, 1);
+			babies.add(child);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public abstract void doTimeStep();
@@ -118,7 +131,7 @@ public String toString() { return ""; }
 		try{
 			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
 			Critter crit = (Critter)c.newInstance();
-			CritterCollection.add(crit);
+			population.add(crit);
 		}
 		catch(ClassNotFoundException | InstantiationException | IllegalAccessException ex){
 			throw new InvalidCritterException(critter_class_name);
@@ -133,15 +146,25 @@ public String toString() { return ""; }
 	 */
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
+		
 		try{
 			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
-			for(int i = 0; i < CritterCollection.size(); i++){
-				Critter a = CritterCollection.get(i);
-				if(CritterCollection.get(i).getClass() == c){
-					result.add(CritterCollection.get(i));
+			for(int i = 0; i < population.size(); i++){
+				if(population.get(i).getClass() == c){
+					result.add(population.get(i));
 				}
 			}
 		}
+//		
+//		try{
+//			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
+//			for(int i = 0; i < population.size(); i++){
+//				Critter a = population.get(i);
+//				if(a.getClass().isInstance(c)){
+//					result.add(population.get(i));
+//				}
+//			}
+//		}
 		catch(ClassNotFoundException ex){
 			throw new InvalidCritterException(critter_class_name);
 		}
@@ -209,7 +232,7 @@ public String toString() { return ""; }
 		 * implemented for grading tests to work.
 		 */
 		protected static List<Critter> getPopulation() {
-			return CritterCollection;
+			return population;
 		}
 		
 		/*
@@ -230,6 +253,12 @@ public String toString() { return ""; }
 	}
 	
 	public static void worldTimeStep() {
+		for(Critter crit: population){
+			crit.doTimeStep();
+		}
+		for(Critter crit: population){
+			
+		}
 	}
 	
 	public static void displayWorld() {
@@ -241,7 +270,7 @@ public String toString() { return ""; }
 		}
 		
 		//populate the world
-		for (Critter critter: CritterCollection){
+		for (Critter critter: population){
 			world[critter.x_coord][critter.y_coord] = critter.toString();
 		}
 		
