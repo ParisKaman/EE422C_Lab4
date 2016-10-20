@@ -29,7 +29,7 @@ public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
-	private static String[][] world = new String[Params.world_height][Params.world_width];
+	private static String[][] world = new String[Params.world_width][Params.world_height];
 	
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
@@ -47,7 +47,7 @@ public abstract class Critter {
 	
 	
 	/* a one-character long string that visually depicts your critter in the ASCII interface */
-	public String toString() { return ""; }
+public String toString() { return ""; }
 	
 	private int energy = 0;
 	protected int getEnergy() { return energy; }
@@ -131,6 +131,9 @@ public abstract class Critter {
 		try{
 			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
 			Critter crit = (Critter)c.newInstance();
+			crit.x_coord = getRandomInt(Params.world_width);
+			crit.y_coord = getRandomInt(Params.world_height);
+			crit.energy = Params.start_energy;
 			population.add(crit);
 		}
 		catch(ClassNotFoundException | InstantiationException | IllegalAccessException ex){
@@ -146,7 +149,6 @@ public abstract class Critter {
 	 */
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
-		
 		try{
 			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
 			for(int i = 0; i < population.size(); i++){
@@ -155,16 +157,6 @@ public abstract class Critter {
 				}
 			}
 		}
-//		
-//		try{
-//			Class<?> c = Class.forName(myPackage + "." + critter_class_name);
-//			for(int i = 0; i < population.size(); i++){
-//				Critter a = population.get(i);
-//				if(a.getClass().isInstance(c)){
-//					result.add(population.get(i));
-//				}
-//			}
-//		}
 		catch(ClassNotFoundException ex){
 			throw new InvalidCritterException(critter_class_name);
 		}
@@ -250,14 +242,14 @@ public abstract class Critter {
 	 * Clear the world of all critters, dead and alive
 	 */
 	public static void clearWorld() {
+		population.clear();
+		babies.clear();
 	}
+	
 	
 	public static void worldTimeStep() {
 		for(Critter crit: population){
 			crit.doTimeStep();
-		}
-		for(Critter crit: population){
-			
 		}
 	}
 	
@@ -265,7 +257,7 @@ public abstract class Critter {
 		//Clear the world
 		for(int i = 0; i<Params.world_height;i++){
 			for(int j = 0; j<Params.world_width; j++){
-				world[i][j] = " ";					
+				world[j][i] = " ";					
 			}
 		}
 		
@@ -285,7 +277,7 @@ public abstract class Critter {
 		for(int i = 0; i<Params.world_height; i++){	
 			System.out.print("|");
 			for(int j = 0; j < Params.world_width; j++){
-				System.out.print(world[i][j]);
+				System.out.print(world[j][i]);
 				}
 			System.out.println("|");
 		}
