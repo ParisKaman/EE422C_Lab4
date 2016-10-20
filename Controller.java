@@ -1,4 +1,5 @@
 package assignment4;
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class Controller {
@@ -144,17 +145,17 @@ public class Controller {
 				return true;
 			}
 
-			//Critter list and it's corresponding package
+//			//Critter list and it's corresponding package
 			java.util.List<Critter> instances;
 			myPackage = Critter.class.getPackage().toString().split(" ")[1];
 			
-			
+			//runStats for the specific type of Critter in command[1]
 			try{
 				instances = Critter.getInstances(command[1]);
 				Class<?> c = Class.forName(myPackage + "." + command[1]);
-				Critter crit = (Critter)c.newInstance();
-				crit.runStats(instances);
-				//Works, but bad coding. Need to call runstats statically
+				Class<?>[] types = {List.class};
+				Method method = c.getMethod("runStats", types);	
+				method.invoke(null, instances);
 				
 			} catch(Exception InvalidCritterException){
 				System.out.println("error processing: " + input);
