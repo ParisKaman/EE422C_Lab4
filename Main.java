@@ -21,10 +21,8 @@ import java.io.*;
  * May not use 'test' argument without specifying input file.
  */
 
-/*
- * Stuff I've added
- * boolean status
- * main loop code
+/*TODO
+ * replenish algae
  */
 
 public class Main {
@@ -77,18 +75,7 @@ public class Main {
         /* Write your code below. */
         
         
-        //FOR STAGE 1 AND 2 ONLY
-    	//DELETE LATER
-    	String hello = "hello";
-    	String[] populate = {"make", "Craig", "25", null};
-    	Controller.execute(populate, hello);
-    	populate[1] = "Algae";
-    	populate[2] = "100";
-    	Controller.execute(populate, hello);     	
-    	//FOR STAGE 1 AND 2 ONLY
-    	//DELETE LATER
-    	
-    	
+           	
         
         while(status){
         	System.out.print("critters> ");
@@ -102,8 +89,7 @@ public class Main {
         }
         
        
-        //Critter.displayWorld();
-              
+             
         
         /* Write your code above */
         System.out.flush();

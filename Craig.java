@@ -26,7 +26,7 @@ public class Craig extends Critter {
 		/* take one step forward */
 		walk(dir);
 		
-		if (getEnergy() > 150) {
+		if (getEnergy() > 150) {	
 			Craig child = new Craig();
 			for (int k = 0; k < 8; k += 1) {
 				child.genes[k] = this.genes[k];

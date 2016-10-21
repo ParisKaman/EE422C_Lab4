@@ -57,7 +57,13 @@ public abstract class Critter {
 	public boolean isBaby = false;
 	public boolean isDead = false;
 	
-	protected void move(int direction, int spaces) {
+	
+	/**Helper method for walk or run. Given a direction and a number of spaces, it will move a critter to a new spot
+	 * 
+	 * @param direction is the direction the critter will move
+	 * @param spaces is the number of spaces the critter will move
+	 */
+	private void move(int direction, int spaces) {
 		
 		//check to see if the Critter has already moved
 		if(this.hasMoved){
@@ -110,6 +116,10 @@ public abstract class Critter {
 		this.hasMoved = true;
 	}
 	
+	/**Given a direction, moves a critter one space in that direction
+	 * 
+	 * @param direction is the direction the critter should walk in
+	 */
 	protected final void walk(int direction) {
 		//move the critter
 		//it may kill itself by trying
@@ -117,6 +127,11 @@ public abstract class Critter {
 		this.energy -= Params.walk_energy_cost;
 	}
 	
+	
+	/**Given a direction, moves a critter two spaces in that direction
+	 * 
+	 * @param direction is the direction the critter should run in
+	 */
 	protected final void run(int direction){
 		//move the critter
 		//it may kill itself by trying
@@ -125,6 +140,12 @@ public abstract class Critter {
 		
 	}
 	
+	
+	/**Creates a new critter the same type as offspring and gives it a new direction
+	 * 
+	 * @param offspring is the type of critter to be "reproduced"
+	 * @param direction is the direction the offspring will move in
+	 */
 	protected final void reproduce(Critter offspring, int direction) {
 		
 		//check if it is able to reproduce
@@ -283,6 +304,9 @@ public abstract class Critter {
 		babies.clear();
 	}
 	
+	/**
+	 * Clear the world of all dead critters
+	 */
 	private static void clearDead(){
 		int i = 0;
 		while(i<population.size()){
@@ -292,6 +316,10 @@ public abstract class Critter {
 		}
 	}
 	
+	/**
+	 * moves the world a single timestep
+	 * Critters do their timestep, then encounters, then add babies to world, then clear dead
+	 */
 	public static void worldTimeStep() {
 		
 		//All critters do timestep
@@ -323,38 +351,39 @@ public abstract class Critter {
 					
 					//check that crits are still in same position
 					//if not, don't fight
-					if(!(other.x_coord == crit.x_coord 
-							&& other.y_coord == crit.y_coord))
-						return;
-					
-					//get rolls for each critter
-					if(crit.wantsFight){
-						crit.fightRoll = getRandomInt(crit.energy);
-					}else{
-						crit.fightRoll = 0;
+					if((other.x_coord == crit.x_coord 
+							&& other.y_coord == crit.y_coord) && !crit.isDead && !other.isDead){
+						
+						
+						//get rolls for each critter
+						if(crit.wantsFight){
+							crit.fightRoll = getRandomInt(crit.energy);
+						}else{
+							crit.fightRoll = 0;
+						}
+						if(other.wantsFight){
+							other.fightRoll = getRandomInt(other.energy);
+						}else{
+							other.fightRoll = 0;
+						}
+						
+						//if crit rolls higher or equal to other, he kills other and gets half his energy
+						// other only wins if he rolls higher than crit
+						if(crit.fightRoll >= other.fightRoll){
+							crit.energy += (other.energy/2);
+							other.energy = 0;
+						}else{
+							other.energy += (crit.energy/2);
+							crit.energy = 0;
+						}
+						
+						//check if either is dead
+						if(crit.energy <= 0)
+							crit.isDead = true;
+						if(other.energy <= 0)
+							other.isDead = true;
 					}
-					if(other.wantsFight){
-						other.fightRoll = getRandomInt(other.energy);
-					}else{
-						other.fightRoll = 0;
-					}
-					
-					//if crit rolls higher or equal to other, he kills other and gets half his energy
-					// other only wins if he rolls higher than crit
-					if(crit.fightRoll >= other.fightRoll){
-						crit.energy += (other.energy/2);
-						other.energy = 0;
-					}else{
-						other.energy += (crit.energy/2);
-						crit.energy = 0;
-					}
-					
-					//check if either is dead
-					if(crit.energy <= 0)
-						crit.isDead = true;
-					if(other.energy <= 0)
-						other.isDead = true;
-				}
+				}	
 			}
 		}
 		
@@ -371,6 +400,7 @@ public abstract class Critter {
 		//get rid of rest energy cost
 		for(Critter crit: population){
 			crit.energy -= Params.rest_energy_cost;
+			crit.hasMoved = false;
 			if(crit.energy <= 0){        						//throws concurrentmodificationexception
 				crit.isDead = true;
 			}
@@ -378,8 +408,20 @@ public abstract class Critter {
 		
 		//clear all the dead
 		clearDead();
+		
+		for(int i = 0; i< Params.refresh_algae_count; i++){
+			try	{
+				Critter.makeCritter("Algae");
+			} catch(InvalidCritterException e){
+				System.out.println("error processing: Algae" );  				//Check this line
+			}
+		}
 	}
 	
+	
+	/**
+	 * Prints an ascii representation of the world to the console
+	 */
 	public static void displayWorld() {
 		//Clear the world
 		for(int i = 0; i<Params.world_height;i++){
