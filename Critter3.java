@@ -1,4 +1,13 @@
-/*
+/*	CRITTERS Critter.java
+ *	EE422C Project 4 submission by
+ *	Aaron Thomas North
+ *	atm2324
+ *	16465
+ *	Paris Kaman
+ *	pak679
+ *	16445
+ *	Slip days used: <0>
+ *	Fall 2016
  * 	Critter3 is a critter that does not reproduce
  * 	Critter3 has the following characteristics:
  * 		-never reproduces
