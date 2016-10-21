@@ -22,9 +22,17 @@ public class Critter4 extends Critter{
 	@Override
 	public String toString(){return "4";}
 	
+	/** always returns that Critter4 wants to fight 
+	 * 	when on the same space as another Critter
+	 * 	@param String not_used -- not used for Critter4
+	 * 	@return true
+	 */
 	@Override
 	public boolean fight(String not_used) { return true; }
 
+	/**Critter4 will reproduce if it has more than 200 energy
+	 * 	he will never move but will turn away from child after reproducing
+	 */
 	@Override
 	public void doTimeStep() {
 		if(getEnergy() > 200){

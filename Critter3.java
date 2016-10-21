@@ -23,9 +23,17 @@ public class Critter3 extends Critter{
 	@Override
 	public String toString(){return "3";}
 	
+	/**	always returns that Critter3 wants to fight 
+	 * 	when on the same space as another Critter
+	 * 	@param String not_used -- not used for Critter3
+	 * 	@return true
+	 */ 
 	@Override
 	public boolean fight(String not_used) { return true; }
 
+	/**	Critter3 will walk when under 200 energy 
+	 * 	and run when 200 or over 200
+	 */
 	@Override
 	public void doTimeStep() {
 		if(getEnergy() < 200){
